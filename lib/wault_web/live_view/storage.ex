@@ -19,7 +19,7 @@ defmodule WaultWeb.LiveView.Storage do
     ~H"""
     <%= case @fs_object do %>
       <% %{file: nil} -> %>
-        <div class="flex flex-col md:flex-row max-w-[1440px] h-full">
+        <div class="flex flex-col md:flex-row max-w-[1440px] md:w-full h-full">
           <div class="w-full flex-col flex p-4 space-y-2 md:w-[400px] lg:w-[500px]">
             <div>
               <h1 class="font-bold text-2xl text-zinc-500">Storage</h1>
@@ -148,21 +148,51 @@ defmodule WaultWeb.LiveView.Storage do
               <input type="text" name="new_tags" value="" placeholder="tag..." class="rounded-md" />
             </form>
           </div>
-          <div class="p-4 w-full flex justify-around">
-            <%= case Path.extname(@fs_object.file) do %>
-              <% ".mp4" -> %>
-                <video
-                  class="rounded-md"
-                  controls
-                  src={static_path(@socket, "/uploads/#{"live_view_upload-" <> @fs_object.file}")}
-                >
-                </video>
-              <% _ -> %>
-                <img
-                  class="max-w-[85%] rounded-md"
-                  src={static_path(@socket, "/uploads/#{"live_view_upload-" <> @fs_object.file}")}
-                />
-            <% end %>
+          <div class="flex flex-col">
+            <div class="flex items-center pl-4">
+              <div>
+                <%= case @fs_object.parent_id do %>
+                  <% nil -> %>
+                    <div class="border-zinc-300 border text-2xl w-12 h-12 rounded-lg text-zinc-700 flex items-center">
+                      <span class="mx-auto">&#10005;</span>
+                    </div>
+                  <% _ -> %>
+                    <button
+                      phx-click="nav-b"
+                      class="border-zinc-300 border text-2xl w-12 h-12 rounded-lg text-zinc-700"
+                    >
+                      &uarr;
+                    </button>
+                <% end %>
+              </div>
+              <div class="border-zinc-300 border w-full px-2 py-1 rounded-lg text-zinc-600 ml-2 h-12 flex items-center text-lg">
+                /<%= for {name, id} <- Enum.reverse @nav_stack do %>
+                  <button
+                    phx-click="jmp"
+                    phx-value-fs_object_id={id}
+                    class="text-indigo-500 px-1 font-semibold"
+                  ><%= name %></button>/
+                <% end %>
+              </div>
+              <!-- Hamburger menu -->
+              <button></button>
+            </div>
+            <div class="p-4 w-full flex justify-around">
+              <%= case Path.extname(@fs_object.file) do %>
+                <% ".mp4" -> %>
+                  <video
+                    class="rounded-md"
+                    controls
+                    src={static_path(@socket, "/uploads/#{"live_view_upload-" <> @fs_object.file}")}
+                  >
+                  </video>
+                <% _ -> %>
+                  <img
+                    class="max-w-[85%] rounded-md"
+                    src={static_path(@socket, "/uploads/#{"live_view_upload-" <> @fs_object.file}")}
+                  />
+              <% end %>
+            </div>
           </div>
         </div>
     <% end %>
